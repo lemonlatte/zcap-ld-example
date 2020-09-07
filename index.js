@@ -12,6 +12,7 @@ const {
 const {
   CapabilityInvocation,
   CapabilityDelegation,
+  ExpirationCaveat,
 } = require("ocapld");
 
 const jsonld = require('jsonld');
@@ -92,6 +93,13 @@ const capDB = {};
     "invoker": "did:bitmark:e4CHPviKRu5P6L5YQ15qYL77tfXEGua4U4maPTmzf4YwxCMA9d"
   }
 
+  const expires = new Date()
+  expires.setSeconds(expires.getSeconds() + 3, 0)
+
+  new ExpirationCaveat({
+    expires
+  }).update(mycap);
+
   // sign delegation
   let signed;
   try {
@@ -103,7 +111,8 @@ const capDB = {};
         }),
       }),
       purpose: new CapabilityDelegation({
-        capabilityChain: [rootID]
+        capabilityChain: [rootID],
+        caveat: new ExpirationCaveat()
       })
     });
     console.log("signed", signed)
@@ -116,7 +125,9 @@ const capDB = {};
   // verify delegation
   const result = await jsigs.verify(signed, {
     suite: new Ed25519Signature2018(),
-    purpose: new CapabilityDelegation(),
+    purpose: new CapabilityDelegation({
+      caveat: new ExpirationCaveat(),
+    }),
     documentLoader: customLoader,
   })
 
@@ -126,14 +137,18 @@ const capDB = {};
     console.log("error", result.error.errors)
   }
 
-
   const mycap2 = {
     "@context": "https://w3id.org/security/v2",
-    "id": "urn:uuid:ad86cb2c-e9db-434a-beae-71b82120a8a4",
-    "parentCapability": signed.id,
-    "invoker": "did:bitmark:e4CHPviKRu5P6L5YQ15qYL77tfXEGua4U4maPTmzf4YwxCMA9d"
+    "id": "urn:uuid:ad86cb2c-e9db-434a-beae-71b82120a8a4"
   }
 
+  await new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve()
+    }, 1000)
+  })
+
+  // invocation signing
   let signed2;
   try {
     signed2 = await jsigs.sign(mycap2, {
@@ -144,7 +159,7 @@ const capDB = {};
         }),
       }),
       purpose: new CapabilityInvocation({
-        capability: rootID
+        capability: signed.id
       })
     });
     capDB[signed2.id] = signed2
@@ -157,6 +172,8 @@ const capDB = {};
   const result2 = await jsigs.verify(signed2, {
     suite: new Ed25519Signature2018(),
     purpose: new CapabilityInvocation({
+      suite: new Ed25519Signature2018(),
+      caveat: new ExpirationCaveat(),
       expectedTarget: rootID
     }),
     documentLoader: customLoader
