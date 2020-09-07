@@ -1,0 +1,16 @@
+{
+  "name": "zcap-ld-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jsonld-signatures": "^5.1.0",
+    "ocapld": "^2.0.0",
+    "typescript": "^4.0.2"
+  }
+}
