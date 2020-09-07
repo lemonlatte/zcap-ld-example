@@ -162,7 +162,7 @@ const capDB = {};
     documentLoader: customLoader
   });
 
-  if (result.verified) {
+  if (result2.verified) {
     console.log("invocation verified")
   } else {
     console.log("error", result2.error.errors)
