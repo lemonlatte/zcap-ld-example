@@ -18,7 +18,11 @@ module.exports = class ActionCaveat extends Caveat {
     super({
       type: 'capabilityAction'
     });
-    this.allowedAction = action || 'read'
+    if (action !== undefined) {
+      this.allowedAction = action
+    } else {
+      this.allowedAction = 'read'
+    }
   }
 
   /**
@@ -26,9 +30,9 @@ module.exports = class ActionCaveat extends Caveat {
    */
   async validate(caveat) {
     try {
-      const action = caveat.action;
-      if (action !== this.action) {
-        throw new Error('action mismatched');
+      const allowedAction = caveat.allowedAction;
+      if (allowedAction !== this.allowedAction) {
+        throw new Error('allowedAction mismatched');
       }
       return {
         valid: true
