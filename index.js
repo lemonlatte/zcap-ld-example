@@ -100,10 +100,11 @@ const capDB = {};
     expires
   }).update(mycap);
 
-  // sign delegation
-  let signed;
+  console.log("========== Delegation ==========")
+  let delegationCap;
   try {
-    signed = await jsigs.sign(mycap, {
+    console.log("Sign delegation capability…")
+    delegationCap = await jsigs.sign(mycap, {
       suite: new Ed25519Signature2018({
         key: new Ed25519KeyPair({
           ...publicKey,
@@ -115,15 +116,15 @@ const capDB = {};
         caveat: new ExpirationCaveat()
       })
     });
-    console.log("signed", signed)
+    console.log("Signed capability: ", delegationCap)
 
-    capDB[signed.id] = signed
+    capDB[delegationCap.id] = delegationCap
   } catch (errors) {
     console.log(errors)
   }
 
-  // verify delegation
-  const result = await jsigs.verify(signed, {
+  console.log("Verify delegation capability…")
+  const result = await jsigs.verify(delegationCap, {
     suite: new Ed25519Signature2018(),
     purpose: new CapabilityDelegation({
       caveat: new ExpirationCaveat(),
@@ -132,9 +133,9 @@ const capDB = {};
   })
 
   if (result.verified) {
-    console.log("delegation verified")
+    console.log("Delegation capability verified")
   } else {
-    console.log("error", result.error.errors)
+    console.log("Verification error", result.error.errors)
   }
 
   const mycap2 = {
@@ -148,10 +149,11 @@ const capDB = {};
     }, 1000)
   })
 
-  // invocation signing
-  let signed2;
+  console.log("========== Invocation ==========")
+  let invocationCap;
   try {
-    signed2 = await jsigs.sign(mycap2, {
+    console.log("Sign invocation capability…")
+    invocationCap = await jsigs.sign(mycap2, {
       suite: new Ed25519Signature2018({
         key: new Ed25519KeyPair({
           ...invokeKey,
@@ -159,17 +161,17 @@ const capDB = {};
         }),
       }),
       purpose: new CapabilityInvocation({
-        capability: signed.id
+        capability: delegationCap.id
       })
     });
-    capDB[signed2.id] = signed2
-    console.log("signed2", signed2)
+    capDB[invocationCap.id] = invocationCap
+    console.log("Signed capability:", invocationCap)
   } catch (errors) {
     console.log(errors)
   }
 
-  // verify invocation
-  const result2 = await jsigs.verify(signed2, {
+  console.log("Verify invocation capability…")
+  const result2 = await jsigs.verify(invocationCap, {
     suite: new Ed25519Signature2018(),
     purpose: new CapabilityInvocation({
       suite: new Ed25519Signature2018(),
@@ -180,8 +182,8 @@ const capDB = {};
   });
 
   if (result2.verified) {
-    console.log("invocation verified")
+    console.log("Invocation capability verified")
   } else {
-    console.log("error", result2.error.errors)
+    console.log("Verification error", result2.error.errors)
   }
 })()
