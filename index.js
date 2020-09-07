@@ -17,6 +17,8 @@ const {
 
 const jsonld = require('jsonld');
 
+const ActionCaveat = require('./caveat.js');
+
 // grab the built-in Node.js doc loader
 const nodeDocumentLoader = jsonld.documentLoaders.node();
 // or grab the XHR one: jsonld.documentLoaders.xhr()
@@ -100,6 +102,10 @@ const capDB = {};
     expires
   }).update(mycap);
 
+  new ActionCaveat({
+    action: 'read'
+  }).update(mycap);
+
   console.log("========== Delegation ==========")
   let delegationCap;
   try {
@@ -113,7 +119,7 @@ const capDB = {};
       }),
       purpose: new CapabilityDelegation({
         capabilityChain: [rootID],
-        caveat: new ExpirationCaveat()
+        caveat: [new ExpirationCaveat(), new ActionCaveat()]
       })
     });
     console.log("Signed capability: ", delegationCap)
@@ -127,7 +133,7 @@ const capDB = {};
   const result = await jsigs.verify(delegationCap, {
     suite: new Ed25519Signature2018(),
     purpose: new CapabilityDelegation({
-      caveat: new ExpirationCaveat(),
+      caveat: [new ExpirationCaveat(), new ActionCaveat()],
     }),
     documentLoader: customLoader,
   })
@@ -175,7 +181,7 @@ const capDB = {};
     suite: new Ed25519Signature2018(),
     purpose: new CapabilityInvocation({
       suite: new Ed25519Signature2018(),
-      caveat: new ExpirationCaveat(),
+      caveat: [new ExpirationCaveat(), new ActionCaveat()],
       expectedTarget: rootID
     }),
     documentLoader: customLoader
