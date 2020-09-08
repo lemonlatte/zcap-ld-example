@@ -17,7 +17,6 @@ const {
 
 const jsonld = require('jsonld');
 
-const ActionCaveat = require('./caveat.js');
 
 // grab the built-in Node.js doc loader
 const nodeDocumentLoader = jsonld.documentLoaders.node();
@@ -42,47 +41,20 @@ const customLoader = async (url, options) => {
   return nodeDocumentLoader(url);
 };
 
-const privateKeyBase58 = "4KFqAQAtzE2UySaEjkTKGNqxz8dAaWthD6yUeeqQPiFYJgTh5UFNENkksPWooPxL7kPM8NaJ5GfEJdkZRVDgYfjU"
-const publicKeyBase58 = "25VanJqXPwpDzzqTai7U2PiDRmMZhsKiS32WrFsP7x2z"
-
-
-const privateKeyBase58Invoke = "qoCG1mMQA3vRNzdgrL3XWp9k1CWs8V4hNnu1fxiyFTRH3MHJyvoVG4z6j1QGTUgGjjnFnFSf1m5frThsZT33kQL"
-const publicKeyBase58Invoke = "kdUPZ5qnh5hRRVUgDaDUeHexGyDmzyrBBXX2ShbQ13S"
-
-
 const rootID = "https://lemonlatte.github.io/bitmarkd-repo.jsonld"
 
-const publicKey = {
-  '@context': jsigs.SECURITY_CONTEXT_URL,
-  type: 'Ed25519VerificationKey2018',
-  id: 'did:bitmark:e4CHPviKRu5P6L5YQ15qYL77tfXEGua4U4maPTmzf4YwxCMA9d#key-1',
-  controller: 'did:bitmark:e4CHPviKRu5P6L5YQ15qYL77tfXEGua4U4maPTmzf4YwxCMA9d',
-  publicKeyBase58
-};
+const {
+  privateKeyBase58,
+  privateKeyBase58Invoke,
+} = require("./constants");
 
-const invokeKey = {
-  '@context': jsigs.SECURITY_CONTEXT_URL,
-  type: 'Ed25519VerificationKey2018',
-  id: 'did:bitmark:e4CHPviKRu5P6L5YQ15qYL77tfXEGua4U4maPTmzf4YwxCMA9d#key-2',
-  controller: 'did:bitmark:e4CHPviKRu5P6L5YQ15qYL77tfXEGua4U4maPTmzf4YwxCMA9d',
-  publicKeyBase58: publicKeyBase58Invoke
-}
+const {
+  publicKey,
+  invokeKey,
+  didBitmark,
+} = require("./controllers");
 
-const controller = {
-  '@context': jsigs.SECURITY_CONTEXT_URL,
-  id: 'did:bitmark:e4CHPviKRu5P6L5YQ15qYL77tfXEGua4U4maPTmzf4YwxCMA9d',
-  publicKey: [publicKey],
-  authentication: [publicKey],
-  capabilityDelegation: [publicKey],
-  capabilityInvocation: [invokeKey],
-};
-
-const didBitmark = {
-  [controller.id]: controller,
-  [publicKey.id]: publicKey,
-  [invokeKey.id]: invokeKey,
-};
-
+const ActionCaveat = require('./caveat.js');
 
 const capDB = {};
 
